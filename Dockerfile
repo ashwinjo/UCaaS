@@ -1,5 +1,10 @@
-# 
-FROM python:3.9
+# Use Python 3.8.6 slim image as base
+FROM python:3.8.6-slim
+
+# Install Graphviz and other dependencies
+RUN apt-get update \
+    && apt-get install -y graphviz \
+    && rm -rf /var/lib/apt/lists/*
 
 # 
 WORKDIR /code

@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from fastapi.responses import FileResponse
-#rom app.configInterpreter import create_vizualization
+from app.configInterpreter import create_vizualization
 
 app = FastAPI(title='UaaS',
               description='API Library to interact with UHDConnect')
@@ -88,7 +88,3 @@ async def show_image(uhdIP: str):
 # TODO: 
 # 1. Files Cleaner
 # 2. Port Metrics Graph generator
-
-
-
-print(" ".join(["python3", "-m", "uvicorn", "app.main:app" ,"--reload", "--host", "0.0.0.0", "--port", "50000"]))
