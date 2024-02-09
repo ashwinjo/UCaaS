@@ -1,7 +1,0 @@
-import ast
-
-a= '{"profiles":{"layer_1_profiles":[{"name":"autoneg","link_speed":"speed_100_gbps","choice":"autonegotiation","manual":null},{"name":"manual_RS","link_speed":"speed_100_gbps","choice":"manual","manual":{"fec_mode":"reed_solomon"}},{"name":"manual_NONE","link_speed":"speed_100_gbps","choice":"manual","manual":{"fec_mode":"none"}}]},"front_panel_ports":[{"name":"ixload_port_group_1A","choice":"port_group","port_group":{"ports":[{"front_panel_port":1,"layer_1_profile_name":"autoneg"}]},"front_panel_port":null},{"name":"sn_port_1","choice":"front_panel_port","port_group":null,"front_panel_port":{"front_panel_port":3,"layer_1_profile_name":"autoneg"}}],"connections":[{"name":"IxLoad VLAN to DUT VXLAN 1A","functions":[{"choice":"connect_vlan_vxlan","connect_vlan_vxlan":{"vxlan_endpoint_settings":{"vni":{"choice":"vni_range","vni_range":{"start":1,"count":4096}},"protocols":{"accept":["tcp"]}},"vlan_endpoint_settings":{"outgoing_vxlan_header":{"src_mac":{"choice":"mac","mac":"80:09:02:01:00:01"},"dst_mac":{"choice":"mac","mac":"04:27:28:10:11:E9"},"src_ip":{"choice":"ipv4","ipv4":"10.10.30.26"},"dst_ip":{"choice":"ipv4","ipv4":"10.20.30.102"}}}}}],"endpoints":[{"choice":"front_panel","front_panel":{"port_name":"ixload_port_group_1A","vlan":{"choice":"vlan_range","vlan_range":{"start":1,"count":4096}}},"tags":["vlan"]},{"choice":"front_panel","front_panel":{"port_name":"sn_port_1","vlan":null},"tags":["vxlan"]}]}]}'
-
-b = ast.literal_eval(a)
-
-print(b)

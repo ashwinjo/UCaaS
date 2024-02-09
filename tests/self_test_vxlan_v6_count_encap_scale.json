@@ -1,0 +1,145 @@
+{
+  "profiles": {
+    "layer_1_profiles": [
+      {
+        "name": "ixload_config",
+        "link_speed": "speed_100_gbps",
+        "choice": "autonegotiation"
+      },
+      {
+        "name": "ixnetwork_config",
+        "link_speed": "speed_100_gbps",
+        "choice": "autonegotiation"
+      },
+      {
+        "name": "dut_config",
+        "link_speed": "speed_100_gbps",
+        "choice": "manual",
+        "manual": {
+          "fec_mode": "none"
+        }
+      }
+    ]
+  },
+  "front_panel_ports": [
+    {
+      "name": "vlan_ports",
+      "choice": "port_group",
+      "port_group": {
+        "ports": [
+          {
+            "front_panel_port": 1,
+            "layer_1_profile_name": "ixload_config"
+          },
+          {
+            "front_panel_port": 2,
+            "layer_1_profile_name": "ixload_config"
+          }
+        ]
+      }
+    },
+    {
+      "name": "vxlan_ports",
+      "choice": "port_group",
+      "port_group":
+      {        
+        "ports": [
+          {
+            "front_panel_port": 3,
+            "layer_1_profile_name": "dut_config"
+          },
+          {
+            "front_panel_port": 4,
+            "layer_1_profile_name": "dut_config"
+          }
+        ]
+      }
+    }
+  ],
+  "connections": [
+    {
+      "name": "VLAN to VXLAN",
+      "functions": [
+        { 
+          "choice": "connect_vlan_vxlan",
+          "connect_vlan_vxlan": {
+            "vxlan_endpoint_settings":{
+              "vni": {
+                "choice": "vni_range",
+                "vni_range":  {
+                  "start": 1,
+                  "count": 3
+                }
+              },
+              "routing_method": "ip_routing",
+              "ip_routing": {
+                "destination_ips": {
+                  "choice": "ipv6_range",
+                  "ipv6_range":  {
+                    "start": "2018:34::ef:09",
+                    "count": 6
+                  }
+                }
+              }
+            },
+            "vlan_endpoint_settings": {
+              "routing_method": "ip_routing",
+              "ip_routing": {
+                "source_ips": {
+                  "choice": "ipv6_range",
+                  "ipv6_range":  {
+                    "start": "2018:34::ef:09",
+                    "count": 6
+                  }
+                }
+              },
+              "outgoing_vxlan_header": {
+                "src_mac": {
+                  "choice": "mac",
+                  "mac": "01:02:03:04:05:01"
+                },
+                "src_ip": {
+                  "choice": "ipv4_range",
+                  "ipv4_range":  {
+                    "start": "221.0.1.0"
+                  }
+                },
+                "dst_mac": {
+                  "choice": "mac",
+                  "mac": "00:ae:cd:11:36:ce"
+                },
+                "dst_ip": {
+                  "choice": "ipv4",
+                  "ipv4": "221.0.0.2"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "endpoints": [
+        {
+          "choice": "front_panel",
+          "front_panel": {
+            "port_name": "vlan_ports",
+            "vlan": {
+              "choice": "vlan_range",
+              "vlan_range":   {
+                "start": 1,
+                "count": 3
+              }
+            }
+          },
+          "tags": ["vlan"]
+        },
+        {
+          "choice": "front_panel",
+          "front_panel": {
+            "port_name": "vxlan_ports"
+          },
+          "tags": ["vxlan"]
+        }
+      ]
+    }
+  ]
+}

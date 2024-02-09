@@ -1,82 +1,118 @@
-"""
-"front_panel_ports": [
-        {"name": "ixload_port_group_1",   "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port":  9,  "layer_1_profile_name": "autoneg"}]}},
-        {"name": "ixload_port_group_2",   "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port": 10,  "layer_1_profile_name": "autoneg"}]}},
-        {"name": "dpu_port_1",            "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port": 5,   "layer_1_profile_name": "autoneg"}]}},
-        {"name": "dpu_port_2",            "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port": 6,   "layer_1_profile_name": "autoneg"}]}}
-      ],
-    "connections": [
-      {
-        "name": "ARP Bypass 1",
-        "functions": [{"choice": "connect_arp","connect_arp": {}}],
-        "endpoints": [
-          {"choice": "front_panel","front_panel": {"port_name": "ixload_port_group_1","vlan": {"choice": "vlan_range","vlan_range":   {"start":    1,"count": 1}}}},
-          {"choice": "front_panel","front_panel": {"port_name": "ixload_port_group_2","vlan": {"choice": "vlan_range","vlan_range":   {"start": 1001,"count": 1}}}}
-        ]
-      },
-      {
-        "name": "IxLoad VLAN to DUT PASSTHRU 1",
-        "functions": [{"choice": "connect_ip","connect_ip": {}}],
-        "endpoints": [
-          {"choice": "front_panel","front_panel": {"port_name": "ixload_port_group_1","vlan": {"choice": "vlan_range","vlan_range":   {"start": 1,"count": 1}}}},
-          {"choice": "front_panel","front_panel": {"port_name": "dpu_port_1","vlan": {"choice": "non_vlan"}}}
-        ]
-      },
-      {
-        "name": "IxLoad VLAN to DUT PASSTHRU 2",
-        "functions": [{"choice": "connect_ip","connect_ip": {}}],
-        "endpoints": [
-          {"choice": "front_panel","front_panel": {"port_name": "ixload_port_group_2","vlan": {"choice": "vlan_range","vlan_range":   {"start": 1001,"count": 1}}}},
-          {"choice": "front_panel","front_panel": {"port_name": "dpu_port_2","vlan": {"choice": "non_vlan"}}}
-        ]
-      }
-    ]
-
-
-"""
-
-
 import graphviz
-
-ps = graphviz.Digraph('pet-shop')
-ps.attr(rankdir="LR")
-
-
-# Lets create nodes
-
-a = [
-        {"name": "ixload_port_group_1",   "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port":  9,  "layer_1_profile_name": "autoneg"}]}},
-        {"name": "ixload_port_group_2",   "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port": 10,  "layer_1_profile_name": "autoneg"}]}},
-        {"name": "dpu_port_1",            "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port": 5,   "layer_1_profile_name": "autoneg"}]}},
-        {"name": "dpu_port_2",            "choice": "port_group","port_group":   {"ingress_distribution": "copy","ports": [{"front_panel_port": 6,   "layer_1_profile_name": "autoneg"}]}}
-    ]
+import os
+import json
 
 
 
+def read_json_files():
+    # Lets create nodes
+    folder_path = 'tests'
+    json_files = [f for f in os.listdir(folder_path) if f.endswith('.json')]
 
-with ps.subgraph(name='cluster_Endpoints') as c:
-    c.attr(color="blue", label="Endpoints")
-    for item in a:
-        ports_conn_name = item["name"]
-        c.node(ports_conn_name, shape="square", color='blue')
+    # Create a dictionary to store the JSON data
+    json_data = {}
 
-with ps.subgraph(name='cluster_UHD') as c:
-    c.attr(color="black",label="UHDConnect")
-    for item in a:
-        ports = item["port_group"]["ports"]
-        for p in ports:
-            port_name = str(p['front_panel_port'])
-            c.node(port_name, shape="square", color='black')
+    # json_files = ['self_test.json']
 
-for connections in a:  
-    ports_conn_name = connections["name"] 
-    portstr = ""
-    ports = connections["port_group"]["ports"]
-    print(ports)
-    for p in ports:
-        print()
-        port = str(p['front_panel_port'])
-        portstr +=port
-        ps.edge(ports_conn_name, portstr)
-    
-print(ps.view())
+    # Iterate through the JSON files and convert them to dictionaries
+    for file in json_files[:5]:
+        with open(os.path.join(folder_path, file)) as json_file:
+            data = json.load(json_file)
+            json_data[file] = data
+
+    return json_data
+
+def get_connections(json_configs):
+    c = {}
+    connections = json_configs["connections"]
+    for connection in connections:
+        l = []
+        connection_name = connection["name"]
+        endpoints = connection["endpoints"]
+        # Prints details of endpoints
+        for endpoint in endpoints:
+            choice_details_key = endpoint["choice"]
+        
+            if choice_details_key == "front_panel":
+                l.append(endpoint[choice_details_key]["port_name"])
+        c[connection_name] = l
+       
+    return c
+
+def get_front_panel_ports(json_configs):
+    d = {}
+    front_panel_ports = json_configs["front_panel_ports"]
+    for fpp in front_panel_ports:
+        fp_name = fpp["name"]
+        if fpp["choice"] == "port_group":
+            ports = fpp[fpp["choice"]]["ports"]
+            for p in ports:
+                port_number = p['front_panel_port']
+                layer_1_profile_name = p['layer_1_profile_name']
+                d[str(port_number)] = {"port_name": str(fp_name), 
+                                "layer_1_profile_name": layer_1_profile_name}
+
+        if fpp["choice"] == "front_panel_port":
+                port_number  = fpp[fpp["choice"]]["front_panel_port"]
+                layer_1_profile_name = fpp[fpp["choice"]]['layer_1_profile_name']
+                d[str(port_number)] = {"port_name": str(fp_name), 
+                                "layer_1_profile_name": layer_1_profile_name}
+    return d
+        
+
+
+
+
+def create_vizualization(json_configs_dict=None, runtime_json_config=None):
+
+    def get_uhd_port(endpoint):
+        a = []
+        for key, val in uhd_ports.items():
+            if val['port_name'] == endpoint:
+                # Encompasses when multiple ports in a port group
+                a.append(key)
+        return a
+
+    # To be used when retrieving live configuration
+    if runtime_json_config:
+        json_configs_dict["runtimejson"] = runtime_json_config
+
+
+    for json_test_name, json_configs in json_configs_dict.items():
+        ps = graphviz.Digraph('json_test_name')
+        ps.attr(ffontname="Helvetica,Arial,sans-serif", rankdir="TB")
+        connections = get_connections(json_configs)
+        uhd_ports= get_front_panel_ports(json_configs)
+        with ps.subgraph(name='cluster_UHD') as c:
+                c.attr(color="blue", label="UHDConnect", fontname="Helvetica,Arial,sans-serif")
+                for port in list(uhd_ports.keys()):
+                    c.node(port, shape="note", color='black', fontname="Helvetica,Arial,sans-serif")
+
+        with ps.subgraph(name='cluster_Endpoints') as c:
+                c.attr(color="green", area="200", label="Endpoints", fontname="Helvetica,Arial,sans-serif")
+                used_uhd_p = []
+                for connection_name, endpoints in connections.items():
+                    c.node(endpoints[0], shape="note", color='black')
+                    c.node(endpoints[1], shape="note", color='black')
+                    
+                    # When not UHD connections, just endpoint to endpoint direct connection
+                    if "bypass" in connection_name.lower(): 
+                        ps.edge(endpoints[0], endpoints[1], dir="both")
+                    else:
+                        ep0_p = get_uhd_port(endpoints[0])
+                        ep1_p = get_uhd_port(endpoints[1])
+                        for ep_0_item in ep0_p:
+                            if ep_0_item not in used_uhd_p:
+                                used_uhd_p.append(ep_0_item)
+                                ps.edge(endpoints[0], ep_0_item, dir="both")
+
+        
+                        for ep_1_item in ep1_p:
+                            if ep_1_item not in used_uhd_p:
+                                used_uhd_p.append(ep_1_item)
+                                ps.edge(endpoints[1], ep_1_item, dir="both")
+        ps.render(json_test_name, format='jpg', cleanup=True)
+        
+if __name__ == "__main__":
+    json_configs_dict = read_json_files()
+    create_vizualization(json_configs_dict=json_configs_dict, runtime_json_config=None)

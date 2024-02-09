@@ -1,0 +1,157 @@
+{
+"profiles": {
+    "layer_1_profiles": [
+    {
+        "name": "cloud_config",
+        "link_speed": "speed_100_gbps",
+        "choice": "autonegotiation"
+    },
+    {
+        "name": "dut_config",
+        "link_speed": "speed_100_gbps",
+        "choice": "manual",
+        "manual": {
+        "fec_mode": "none"
+        }
+    }
+    ]
+},
+"front_panel_ports": [
+    {
+        "name": "cloud_port_1",
+        "choice": "port_group",
+        "port_group": 
+        {
+            "ports": [
+                {
+                    "front_panel_port": 1,
+                    "layer_1_profile_name": "cloud_config"
+                }
+            ]
+        }
+    },
+    {
+        "name": "cloud_port_2",
+        "choice": "port_group",
+        "port_group": 
+        {
+            "ports": [
+                {
+                    "front_panel_port": 2,
+                    "layer_1_profile_name": "cloud_config"
+                }
+            ]
+        }
+    },
+    {
+        "name": "dut_port_group_1",
+        "choice": "port_group",
+        "port_group": {
+            "ports": [
+                {
+                    "front_panel_port": 31,
+                    "layer_1_profile_name": "dut_config"
+                }
+            ]
+        }
+    },
+    {
+        "name": "dut_port_group_2",
+        "choice": "port_group",
+        "port_group": {
+            "ports": [
+                {
+                    "front_panel_port": 32,
+                    "layer_1_profile_name": "dut_config"
+                }
+            ]
+        }
+    }
+],
+"connections": [
+    {
+        "name": "Pass Through 1",
+        "endpoints": [
+            {
+                "choice": "front_panel",
+                "front_panel": 
+                {
+                    "port_name": "cloud_port_1",
+                    "vlan": 
+                    {
+                        "choice": "vlan_range",
+                        "vlan_range": 
+                        {
+                            "start": 1,
+                            "count": 1
+                        }
+                    }
+                }
+            },
+            {
+                "choice": "front_panel",
+                "front_panel": 
+                {
+                    "port_name": "dut_port_group_1",
+                    "vlan": 
+                    {
+                        "choice": "non_vlan"
+                    }
+                }
+            }
+        ],
+        "functions": [
+            {
+                "choice": "connect_arp",
+                "connect_arp": {}
+            },
+            {
+                "choice": "connect_ip",
+                "connect_ip": {}
+            }
+        ]
+    },
+    {
+        "name": "Pass Through 2",
+        "endpoints": [
+            {
+                "choice": "front_panel",
+                "front_panel": 
+                {
+                    "port_name": "cloud_port_2",
+                    "vlan": 
+                    {
+                        "choice": "non_vlan"
+                    }
+                }
+            },
+            {
+                "choice": "front_panel",
+                "front_panel": 
+                {
+                    "port_name": "dut_port_group_2",
+                    "vlan": 
+                    {
+                        "choice": "vlan_range",
+                        "vlan_range": 
+                        {
+                            "start": 1,
+                            "count": 1
+                        }
+                    }
+                }
+            }
+        ],
+        "functions": [
+            {
+                "choice": "connect_arp",
+                "connect_arp": {}
+            },
+            {
+                "choice": "connect_ip",
+                "connect_ip": {}
+            }
+        ]
+    }
+]
+}
