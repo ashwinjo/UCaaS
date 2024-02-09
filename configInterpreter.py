@@ -1,8 +1,17 @@
 import graphviz
 import os
 import json
+from datetime import datetime, timezone
 
 
+def datetimestamputc():
+    # Get the current UTC time
+    now = datetime.now(timezone.utc)
+
+    # Convert the UTC time to a human-readable format
+    utc_timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    return utc_timestamp
 
 def read_json_files():
     # Lets create nodes
@@ -61,8 +70,6 @@ def get_front_panel_ports(json_configs):
         
 
 
-
-
 def create_vizualization(json_configs_dict=None, runtime_json_config=None):
 
     def get_uhd_port(endpoint):
@@ -75,12 +82,14 @@ def create_vizualization(json_configs_dict=None, runtime_json_config=None):
 
     # To be used when retrieving live configuration
     if runtime_json_config:
+        json_configs_dict = {}
         json_configs_dict["runtimejson"] = runtime_json_config
 
 
     for json_test_name, json_configs in json_configs_dict.items():
         ps = graphviz.Digraph('json_test_name')
-        ps.attr(ffontname="Helvetica,Arial,sans-serif", rankdir="TB")
+        label_str = f"UHD Topology (Fetched @ {datetimestamputc()} ) "
+        ps.attr(ffontname="Helvetica,Arial,sans-serif", rankdir="TB", label=label_str)
         connections = get_connections(json_configs)
         uhd_ports= get_front_panel_ports(json_configs)
         with ps.subgraph(name='cluster_UHD') as c:
@@ -112,6 +121,7 @@ def create_vizualization(json_configs_dict=None, runtime_json_config=None):
                                 used_uhd_p.append(ep_1_item)
                                 ps.edge(endpoints[1], ep_1_item, dir="both")
         ps.render(json_test_name, format='jpg', cleanup=True)
+        return json_test_name
         
 if __name__ == "__main__":
     json_configs_dict = read_json_files()

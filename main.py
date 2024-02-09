@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from fastapi.responses import FileResponse
+from configInterpreter import create_vizualization
 
 app = FastAPI()
 
@@ -34,6 +35,7 @@ def get_uhd_config(uhdIP: str):
 
     try:
         response = requests.get(url, verify=False)
+        create_vizualization(runtime_json_config=response.json())
         response.raise_for_status()  # Raise an exception for non-2xx responses
         return {"message": "Configuration has set", "status_code": response.status_code, "configuration": response.json()}
     except requests.RequestException as e:
@@ -71,10 +73,17 @@ def clear_uhd_metrics(uhdIP: str):
 import os
 
 # GET route to return the saved image
-@app.get("/getUHDConfigAsImage")
-async def show_image():
+@app.get("/getUHDConfigAsImage/{uhdIP}")
+async def show_image(uhdIP: str):
     try:
-        file_path = os.path.join("image","gangadhar.jpg")
+        get_uhd_config(uhdIP)
+        file_path = os.path.join("runtimejson.jpg")
         return FileResponse(file_path)
-    except:
-        return {"error": "Image not found"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+
+# TODO: 
+# 1. Files Cleaner
+# 2. Add Time Stamp on the Graphviz
