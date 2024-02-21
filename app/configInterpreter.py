@@ -95,6 +95,7 @@ def create_vizualization(json_configs_dict=None, runtime_json_config=None):
 
 
     for json_test_name, json_configs in json_configs_dict.items():
+        print(json_test_name, json_configs)
         ps = graphviz.Digraph('json_test_name')
         label_str = f"UHD Topology (Fetched @ {datetimestamputc()} ) "
         ps.attr(ffontname="Helvetica,Arial,sans-serif", 
@@ -137,3 +138,5 @@ def create_vizualization(json_configs_dict=None, runtime_json_config=None):
 if __name__ == "__main__":
     json_configs_dict = read_json_files()
     create_vizualization(json_configs_dict=json_configs_dict, runtime_json_config=None)
+
+    

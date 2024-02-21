@@ -8,14 +8,14 @@ from app.configInterpreter import create_vizualization
 app = FastAPI(title='UaaS',
               description='API Library to interact with UHDConnect')
 
-# Allowing CORS for all domains
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# # Allowing CORS for all domains
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 @app.post("/setUHDConfig/{uhdIP}/{req}")
 async def set_uhd_config(uhdIP: str, req: str):
@@ -36,9 +36,8 @@ def get_uhd_config(uhdIP: str):
 
     try:
         response = requests.get(url, verify=False)
-        create_vizualization(runtime_json_config=response.json())
         response.raise_for_status()  # Raise an exception for non-2xx responses
-        return {"message": "Configuration has set", "status_code": response.status_code, "configuration": response.json()}
+        return {"message": "Configuration fetched", "status_code": response.status_code, "configuration": response.json()}
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Request failed: {e}")
 
@@ -77,7 +76,7 @@ import os
 @app.get("/getUHDConfigAsImage/{uhdIP}")
 async def show_image(uhdIP: str):
     try:
-        get_uhd_config(uhdIP)
+        create_vizualization(runtime_json_config=get_uhd_config(uhdIP)["configuration"])
         file_path = os.path.join("runtimejson.jpg")
         return FileResponse(file_path)
     except Exception as e:
